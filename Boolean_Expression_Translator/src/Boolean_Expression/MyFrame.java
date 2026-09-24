@@ -42,10 +42,16 @@ public final class MyFrame extends JFrame implements ActionListener
     private static final Color FALSE_BG = new Color(0xFE, 0xE2, 0xE2);
     private static final Color FALSE_FG = new Color(0xB9, 0x1C, 0x1C);
 
+    // gate-chip accent colors
+    private static final Color AND_ACCENT = new Color(0x4F, 0x46, 0xE5); // indigo
+    private static final Color OR_ACCENT = new Color(0x0E, 0xA5, 0xE9);  // sky blue
+    private static final Color NOT_ACCENT = new Color(0xF5, 0x9E, 0x0B); // amber
+
     private JPanel panel1,panel2;
     private JLabel result;
     private JButton button;
-    private JTextField inputExpression, output,numberOfGates;
+    private JTextField inputExpression, output;
+    private JLabel andCountValue, orCountValue, notCountValue;
     private Set<Character> variableSet;
     private ArrayList<JTextField> textFields;
     private ArrayList<JLabel> labels;
@@ -61,7 +67,6 @@ public final class MyFrame extends JFrame implements ActionListener
 
     this.result = new JLabel("Result");
     this.inputExpression = new PlaceholderTextField(30, "e.g. (A+B)^~C");
-    this.numberOfGates = new JTextField(60);
     this.output = new JTextField(6);
     this.button = new RoundedButton("Add Expression", ACCENT, ACCENT_HOVER, ACCENT_PRESS);
     this.circuitPanel = new CircuitPanel();
@@ -161,16 +166,25 @@ public final class MyFrame extends JFrame implements ActionListener
     output.setForeground(TEXT_MUTED);
     output.setText("--");
 
-    numberOfGates.setEditable(false);
-    numberOfGates.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 13));
-    numberOfGates.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(CARD_BORDER, 1, true),
-            new EmptyBorder(6, 10, 6, 10)));
-    numberOfGates.setBackground(new Color(0xF8, 0xFA, 0xFC));
-    numberOfGates.setForeground(TEXT_DARK);
-
     this.panel2 = new RoundedPanel(new FlowLayout(FlowLayout.LEFT, 16, 10), CARD_BG, CARD_BORDER);
     panel2.setBorder(new EmptyBorder(10, 16, 10, 16));
+
+    // Gate-count stat chips (built once here; evaluateNumberOfOperators()
+    // only updates the value labels afterwards, instead of re-adding
+    // components to panel2 on every button click).
+    andCountValue = new JLabel("0");
+    orCountValue = new JLabel("0");
+    notCountValue = new JLabel("0");
+
+    JPanel andChip = createGateChip("AND GATES", AND_ACCENT, andCountValue);
+    JPanel orChip = createGateChip("OR GATES", OR_ACCENT, orCountValue);
+    JPanel notChip = createGateChip("NOT GATES", NOT_ACCENT, notCountValue);
+
+    panel2.add(result);
+    panel2.add(output);
+    panel2.add(andChip);
+    panel2.add(orChip);
+    panel2.add(notChip);
 
     JPanel southWrap = new JPanel(new BorderLayout());
     southWrap.setBackground(BG);
@@ -186,6 +200,43 @@ public final class MyFrame extends JFrame implements ActionListener
         l.setForeground(TEXT_MUTED);
         l.setAlignmentX(LEFT_ALIGNMENT);
         return l;
+    }
+
+    /**
+     * Builds one modern "stat chip" card for the gate-count row: a colored
+     * accent bar on the left, a small muted uppercase title, and a large
+     * bold count. Returns the finished chip; the caller keeps a reference
+     * to valueLabel so it can update the number later without touching
+     * the layout again.
+     */
+    private JPanel createGateChip(String title, Color accent, JLabel valueLabel)
+    {
+        RoundedPanel chip = new RoundedPanel(new BorderLayout(10, 0), new Color(0xFA, 0xFA, 0xFF), CARD_BORDER);
+        chip.setBorder(new EmptyBorder(8, 12, 8, 16));
+
+        JPanel accentBar = new JPanel();
+        accentBar.setBackground(accent);
+        accentBar.setPreferredSize(new Dimension(4, 32));
+        chip.add(accentBar, BorderLayout.WEST);
+
+        JPanel textCol = new JPanel();
+        textCol.setOpaque(false);
+        textCol.setLayout(new BoxLayout(textCol, BoxLayout.Y_AXIS));
+
+        JLabel titleLabel = new JLabel(title);
+        titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD, 10.5f));
+        titleLabel.setForeground(TEXT_MUTED);
+        titleLabel.setAlignmentX(LEFT_ALIGNMENT);
+
+        valueLabel.setFont(valueLabel.getFont().deriveFont(Font.BOLD, 20f));
+        valueLabel.setForeground(TEXT_DARK);
+        valueLabel.setAlignmentX(LEFT_ALIGNMENT);
+
+        textCol.add(titleLabel);
+        textCol.add(valueLabel);
+        chip.add(textCol, BorderLayout.CENTER);
+
+        return chip;
     }
 
     public void variableMethod(String str)
@@ -325,9 +376,11 @@ public void evaluateNumberOfOperators(String str)
          if(str.charAt(i) == '~' || str.charAt(i) == '\'')
              c++;
     }
-       panel2.add(numberOfGates);
-       numberOfGates.setText("\t"+"No of AND Gates:" + a +"\t" +"No of OR Gates: " + b +"\t"+ "No of Not Gates:" + c);
+       andCountValue.setText(String.valueOf(a));
+       orCountValue.setText(String.valueOf(b));
+       notCountValue.setText(String.valueOf(c));
        panel2.revalidate();
+       panel2.repaint();
 }
 
     @Override
@@ -353,10 +406,6 @@ public void evaluateNumberOfOperators(String str)
                panel1.revalidate();
 
            }
-           panel2.add(result);
-           panel2.add(output);
-           panel2.revalidate();
-
 
            variableMethod(inputExpression.getText());
            expression = InfixToPostfix.infixToPostfix(expression);

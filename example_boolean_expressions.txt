@@ -1,24 +1,20 @@
-Example Boolean Expressions
-============================
-Syntax: letters = variables, + = OR, ^ = AND, ~ or ' = NOT, ( ) = grouping
-
-A^B                 AND of two variables
-A+B                 OR of two variables
-~A                  NOT of a variable (prefix form)
-A'                  NOT of a variable (postfix form)
-A^B+C               AND before OR: (A AND B) OR C
-A+B^C               AND before OR: A OR (B AND C)
-(A+B)^C             OR grouped first: (A OR B) AND C
-(A+B)^~C            OR grouped, ANDed with NOT C
-A^~B                A AND (NOT B)
-A'^B                (NOT A) AND B
-~A+~B               (NOT A) OR (NOT B)
-(A^B)+(C^D)         two AND pairs, OR'd together
-(A+B)^(C+D)         two OR pairs, AND'd together
-A^B^C               chained AND: A AND B AND C
-A+B+C               chained OR: A OR B OR C
-~(A^B)              NOT of an AND group
-~(A+B)              NOT of an OR group
-(A^~B)+(~A^B)       XOR built from AND/OR/NOT
-((A+B)^C)+~D        nested grouping with a trailing NOT
-A^B^~C+D'           mixed operators and both NOT styles
+A^B
+A+B
+~A
+A'
+A^B+C
+A+B^C
+(A+B)^C
+(A+B)^~C
+A^~B
+A'^B
+~A+~B
+(A^B)+(C^D)
+(A+B)^(C+D)
+A^B^C
+A+B+C
+~(A^B)
+~(A+B)
+(A^~B)+(~A^B)
+((A+B)^C)+~D
+A^B^~C+D'

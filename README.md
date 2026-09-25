@@ -59,3 +59,8 @@ Input: `(A+B)^~C`
 - Postfix: `AB+C~^`
 - Circuit: an OR gate combining `A` and `B`, feeding into an AND gate along with a NOT gate on `C`
 - Result: depends on the `0`/`1` values you supply for `A`, `B`, and `C` when prompted
+
+## Demo
+
+https://github.com/user-attachments/assets/12f95781-8f7d-4f20-bc70-676ddf81dc84
+
